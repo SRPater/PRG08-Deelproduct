@@ -1,0 +1,15 @@
+{
+  "name": "prog08opdr1server",
+  "version": "1.0.0",
+  "description": "- Bekijk de UML\r - Vul het project aan op punten die niet gelijk zijn aan de UML",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}
