@@ -359,7 +359,7 @@ var Projectile = (function (_super) {
         _super.prototype.collided.call(this, co);
     };
     Projectile.prototype.update = function () {
-        if (this.position.y + this.height < 100) {
+        if (this.position.y + this.height < 0) {
             console.log("Kapot");
             this.dirty = true;
         }

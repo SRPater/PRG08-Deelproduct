@@ -23,7 +23,7 @@ class Projectile extends SpriteObject
 
     public update()
     {
-        if(this.position.y + this.height < 100)
+        if(this.position.y + this.height < 0)
         {
             console.log("Kapot");
             this.dirty = true;
