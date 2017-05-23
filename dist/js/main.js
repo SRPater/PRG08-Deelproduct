@@ -167,8 +167,7 @@ var GameObject = (function () {
                 this.collider.updatePosition(this.position);
         }
     };
-    GameObject.prototype.collided = function (co) {
-    };
+    GameObject.prototype.collided = function (co) { };
     GameObject.prototype.colliderType = function () {
         return this.collider.type;
     };
@@ -180,32 +179,25 @@ var GameObject = (function () {
 var Scene = (function () {
     function Scene() {
         this.gameObjects = [];
-        this.goNeedInput = [];
-        this.goHasCollider = [];
         this.init();
     }
-    Scene.prototype.init = function () {
-    };
-    Scene.prototype.destroy = function () {
-    };
-    Scene.prototype.handleCollisions = function () {
-        for (var i = 0; i < this.goHasCollider.length; i++) {
-            for (var j = 0; j < this.goHasCollider.length; j++) {
-                if (i == j)
-                    continue;
-                var col = this.goHasCollider[i].isColliding(this.goHasCollider[j]);
-                if (col.collided)
-                    this.goHasCollider[i].collided({ object: this.goHasCollider[j], direction: col.direction });
-            }
-        }
-    };
     Scene.prototype.update = function () {
-        for (var i = this.gameObjects.length - 1; i >= 0; i--) {
+        var newArray = [];
+        for (var i = 0; i < this.gameObjects.length; i++) {
             this.gameObjects[i].update();
-            if (this.gameObjects[i].dirty)
-                this.gameObjects.splice(i, 1);
+            if (this.gameObjects[i].hasCollider) {
+                for (var j = 0; j < this.gameObjects.length; j++) {
+                    if (i == j || !this.gameObjects[j].hasCollider)
+                        continue;
+                    var col = this.gameObjects[i].isColliding(this.gameObjects[j]);
+                    if (col.collided)
+                        this.gameObjects[i].collided({ object: this.gameObjects[j], direction: col.direction });
+                }
+            }
+            if (!this.gameObjects[i].dirty)
+                newArray.push(this.gameObjects[i]);
         }
-        this.handleCollisions();
+        this.gameObjects = newArray;
     };
     Scene.prototype.draw = function (ctx) {
         for (var i = 0; i < this.gameObjects.length; i++) {
@@ -213,23 +205,15 @@ var Scene = (function () {
         }
     };
     Scene.prototype.onKeyDown = function (event) {
-        for (var i = 0; i < this.goNeedInput.length; i++) {
-            this.goNeedInput[i].onKeyDown(event);
+        for (var i = 0; i < this.gameObjects.length; i++) {
+            if (this.gameObjects[i].needsInput)
+                this.gameObjects[i].onKeyDown(event);
         }
     };
     Scene.prototype.onKeyUp = function (event) {
-        for (var i = 0; i < this.goNeedInput.length; i++) {
-            this.goNeedInput[i].onKeyUp(event);
-        }
-    };
-    Scene.prototype.processGameObjects = function () {
         for (var i = 0; i < this.gameObjects.length; i++) {
-            if (this.gameObjects[i].needsInput) {
-                this.goNeedInput.push(this.gameObjects[i]);
-            }
-            if (this.gameObjects[i].hasCollider) {
-                this.goHasCollider.push(this.gameObjects[i]);
-            }
+            if (this.gameObjects[i].needsInput)
+                this.gameObjects[i].onKeyUp(event);
         }
     };
     return Scene;
@@ -292,6 +276,13 @@ var Balloon = (function (_super) {
         this.speed = 0.5;
         this.direction.y = -1;
     }
+    Balloon.prototype.update = function () {
+        if (this.position.y + this.height < 0) {
+            console.log("Game over");
+            this.dirty = true;
+        }
+        _super.prototype.update.call(this);
+    };
     return Balloon;
 }(SpriteObject));
 var BoxCollider = (function () {
@@ -367,6 +358,13 @@ var Projectile = (function (_super) {
         }
         _super.prototype.collided.call(this, co);
     };
+    Projectile.prototype.update = function () {
+        if (this.position.y + this.height < 100) {
+            console.log("Kapot");
+            this.dirty = true;
+        }
+        _super.prototype.update.call(this);
+    };
     return Projectile;
 }(SpriteObject));
 var Player = (function (_super) {
@@ -377,10 +375,11 @@ var Player = (function (_super) {
         this.drag = 0.15;
     }
     Player.prototype.update = function () {
+        if (this.position.x > Game.width)
+            this.position.x = Game.width;
+        if (this.position.x < 0)
+            this.position.x = 0;
         _super.prototype.update.call(this);
-    };
-    Player.prototype.draw = function (ctx) {
-        _super.prototype.draw.call(this, ctx);
     };
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
@@ -465,21 +464,19 @@ var GameScene = (function (_super) {
     }
     GameScene.prototype.init = function () {
         var _this = this;
-        _super.prototype.init.call(this);
         this.gameObjects.push(new TextObject(new Vector2(Game.width / 2 - 200, 200), 350, 50, "Shoot all the balloons before they reach the top!", 24, new Color(0, 100, 0)));
         this.gameObjects.push(new Player(new Vector2(Game.width / 2 - 40, Game.height - 40)));
         setInterval(function () { return _this.spawnBalloons(); }, 1000);
-        _super.prototype.processGameObjects.call(this);
     };
+    GameScene.prototype.destroy = function () { };
+    ;
     GameScene.prototype.shootProjectile = function (pos) {
         var p = new Projectile(pos);
         this.gameObjects.push(p);
-        this.goHasCollider.push(p);
     };
     GameScene.prototype.spawnBalloons = function () {
         var b = new Balloon(new Vector2(cMath.random(0, Game.width), Game.height + 15), Math.random() + 0.1);
         this.gameObjects.push(b);
-        this.goHasCollider.push(b);
     };
     GameScene.prototype.onKeyDown = function (event) {
         _super.prototype.onKeyDown.call(this, event);

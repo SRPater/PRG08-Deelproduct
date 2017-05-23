@@ -12,13 +12,14 @@ class Player extends SpriteObject
 
     public update()
     {
-        super.update();
-    }   
+        if(this.position.x > Game.width)
+            this.position.x = Game.width;
 
-    public draw(ctx:CanvasRenderingContext2D)
-    {
-        super.draw(ctx);
-    } 
+        if(this.position.x < 0)
+            this.position.x = 0;
+            
+        super.update();
+    }
     
     public onKeyDown(event:KeyboardEvent):void 
     {

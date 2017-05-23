@@ -19,5 +19,16 @@ class Projectile extends SpriteObject
             break;
         }
         super.collided(co);
-    }    
+    }
+
+    public update()
+    {
+        if(this.position.y + this.height < 100)
+        {
+            console.log("Kapot");
+            this.dirty = true;
+        }
+            
+        super.update();
+    }        
 } 

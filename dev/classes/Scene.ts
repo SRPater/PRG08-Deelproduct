@@ -1,25 +1,18 @@
-class Scene
+abstract class Scene
 {
     public gameObjects: GameObject[] = [];
-    public goNeedInput: GameObject[] = []; // Array of GameObjects that require input events (reference stored).
-    public goHasCollider: GameObject[] = []; // Array of GameObjects that have a collider (and so should collide - reference stored).
+    //public goNeedInput: GameObject[] = []; // Array of GameObjects that require input events (reference stored).
+    //public goHasCollider: GameObject[] = []; // Array of GameObjects that have a collider (and so should collide - reference stored).
     
     constructor()
     {
         this.init();
     }
     
-    public init() : void
-    {
-
-    }
+    abstract init() : void;
+    abstract destroy() : void;
     
-    public destroy() : void
-    {
-        
-    }
-    
-    public handleCollisions():void
+    /*public handleCollisions():void
     {
         for(let i = 0; i < this.goHasCollider.length; i++)
         {
@@ -33,21 +26,34 @@ class Scene
                     this.goHasCollider[i].collided({object:this.goHasCollider[j], direction:col.direction});
             }
         }
-    }
+    }*/
     
     public update() : void 
     {
-        // We are looping backwards so we can remove an item without breaking the loop.
-        for (var i = this.gameObjects.length - 1; i >= 0; i--) 
+        // In case an item has it's dirty flag set, we set it to null (remove it) and don't add it to the new array.
+        let newArray = [];
+        for(let i:number = 0; i < this.gameObjects.length; i++) 
         {
             this.gameObjects[i].update();
 
-            if (this.gameObjects[i].dirty)
-                this.gameObjects.splice(i, 1);
-        }
+            // Handle collisions after the update so we can rewind movement if neccessary.
+            if(this.gameObjects[i].hasCollider)
+            {
+                for(let j:number = 0; j < this.gameObjects.length; j++)
+                {
+                    if(i == j || !this.gameObjects[j].hasCollider)
+                        continue;
+                    
+                    let col = this.gameObjects[i].isColliding(this.gameObjects[j]);   
+                    if(col.collided)
+                        this.gameObjects[i].collided({object:this.gameObjects[j], direction:col.direction});
+                } 
+            } 
 
-        // Handle collisions after the update so we can rewind movement if neccessary.
-        this.handleCollisions();
+            if (!this.gameObjects[i].dirty)
+                newArray.push(this.gameObjects[i]);    
+        }
+        this.gameObjects = newArray;
     }
     
     public draw(ctx:CanvasRenderingContext2D): void 
@@ -60,33 +66,19 @@ class Scene
     
     public onKeyDown(event:KeyboardEvent):void 
     {
-        for(let i:number = 0; i < this.goNeedInput.length; i++)
+        for(let i:number = 0; i < this.gameObjects.length; i++)
         {
-            this.goNeedInput[i].onKeyDown(event);
+            if(this.gameObjects[i].needsInput)
+                this.gameObjects[i].onKeyDown(event);
         }
     }
     
     public onKeyUp(event:KeyboardEvent):void 
     {
-        for(let i:number = 0; i < this.goNeedInput.length; i++)
+        for(let i:number = 0; i < this.gameObjects.length; i++)
         {
-            this.goNeedInput[i].onKeyUp(event);
-        }
-    }
-    
-    public processGameObjects():void
-    {
-        for(let i = 0; i < this.gameObjects.length; i++)
-        {   
             if(this.gameObjects[i].needsInput)
-            {
-                this.goNeedInput.push(this.gameObjects[i]);
-            }
-
-            if(this.gameObjects[i].hasCollider)
-            {
-                this.goHasCollider.push(this.gameObjects[i]);
-            }
+                this.gameObjects[i].onKeyUp(event);
         }
     }
 }

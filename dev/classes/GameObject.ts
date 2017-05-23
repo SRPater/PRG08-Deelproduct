@@ -99,9 +99,7 @@ class GameObject
         }
     }
     
-    public collided(co:CollidedReturnObject)
-    {
-    }
+    public collided(co:CollidedReturnObject) {}
 
     public colliderType() : E_COLLIDER_TYPES
     {
