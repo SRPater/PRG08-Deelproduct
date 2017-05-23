@@ -3,36 +3,21 @@
 
 class Player extends SpriteObject
 {
-    private projectiles: Projectile[] = [];
-
     constructor(pos: Vector2)
     {
-        super(pos, 75, 75, "player", true, true, false, true);
-        this.speed = 15;
+        super(pos, 75, 75, "player", true, true, false, true, E_COLLIDER_TYPES.PLAYER);
+        this.speed = 12;
+        this.drag = 0.15;
     }
 
     public update()
     {
         super.update();
-        for(let i:number = 0; i < this.projectiles.length; i++)
-        {
-            if(this.projectiles[i].dirty)
-            {
-                delete this.projectiles[i];
-                this.projectiles[i] = null;
-            }
-
-            this.projectiles[i].update();
-        }   
     }   
 
     public draw(ctx:CanvasRenderingContext2D)
     {
         super.draw(ctx);
-        for(let i:number = 0; i < this.projectiles.length; i++)
-        {
-            this.projectiles[i].draw(ctx);
-        }
     } 
     
     public onKeyDown(event:KeyboardEvent):void 
@@ -40,7 +25,10 @@ class Player extends SpriteObject
         switch(event.keyCode)
         {
             case 32:
-                this.projectiles.push(new Projectile(this.position));
+                // Just cuz I wantd to use my fancy Scheduler class :)
+                Scheduler.doAtFrame(
+                    (pos: Vector2) => (<GameScene>Game.instance().getActiveScene()).shootProjectile(pos), 0, this.position
+                );
             break;
             case 39: // Arrow right
                 this.direction.x = 1;

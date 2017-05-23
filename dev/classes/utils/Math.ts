@@ -7,4 +7,9 @@ class cMath
     {
         return Math.min(Math.max(n, min), max);
     };
+
+    public static random(min, max)
+    {
+        return Math.floor(Math.random() * max) + min;  
+    }
 }

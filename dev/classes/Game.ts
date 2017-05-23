@@ -11,10 +11,8 @@ enum TILED_LAYERS
 
 enum E_COLLIDER_TYPES
 {
-    GROUND,
     PLAYER,
-    PROP,
-    TRIGGER
+    PROP
 }
 
 enum ColliderDirection
@@ -30,30 +28,33 @@ class Game
 {
     private static _instance: Game;
 
-    public static width:number = 960;
+    public static width: number = 960;
     public static height:number = 540;
-    public static gravity:number = 3;
-    public static MS_UPDATE_LAG:number = 33; // 30 fps.
-    public static DEBUG:Boolean = false;
+    public static gravity: number = 3;
+    public static MS_UPDATE_LAG: number = 16; // ~60 fps.
+    public static DEBUG: Boolean = false;
 
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private activeScene:Scene;
-    public date:Date;
+    private activeScene: Scene;
+    private date: Date;
 
-    private elapsedTime:number = 0;
-    private updateLag:number = 0;
-    private currentTime:number;
-    private previousTime:number;
-    private fpsTimer:number = 0;
+    private elapsedTime: number = 0;
+    private updateLag: number = 0;
+    private currentTime: number;
+    private previousTime: number;
+    private fpsTimer: number = 0;
 
-    public renderFPS:number = 0;
+    private renderFPS: number = 0;
+    private totalUpdates: number = 0;
 
     constructor() 
     {
         if(Game._instance){
             throw new Error("Kan klasse niet instantieren: Game is een singleton.");
         }
+
+        Game._instance = this;
 
         this.canvas = document.getElementsByTagName("canvas")[0];
         this.canvas.width = Game.width;
@@ -79,6 +80,16 @@ class Game
             Game._instance = new Game();
             
         return Game._instance;
+    }
+
+    public getFPS(): number
+    {
+        return this.renderFPS;
+    }
+
+    public getTotalUpdates(): number
+    {
+        return this.totalUpdates;
     }
     
     public activateScene(scene:E_SCENES)
@@ -110,7 +121,9 @@ class Game
 
         while(this.updateLag >= Game.MS_UPDATE_LAG)
         {
+            this.totalUpdates++;
             this.activeScene.update();
+            Scheduler.runJobs(this.totalUpdates);
 
             this.updateLag -= Game.MS_UPDATE_LAG;
         }

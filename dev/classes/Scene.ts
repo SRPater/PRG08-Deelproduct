@@ -30,19 +30,23 @@ class Scene
 
                 let col = this.goHasCollider[i].isColliding(this.goHasCollider[j]);   
                 if(col.collided)
-                {
                     this.goHasCollider[i].collided({object:this.goHasCollider[j], direction:col.direction});
-                }
             }
         }
     }
     
     public update() : void 
     {
-        for(let i:number = 0; i < this.gameObjects.length; i++)
+        // We are looping backwards so we can remove an item without breaking the loop.
+        for (var i = this.gameObjects.length - 1; i >= 0; i--) 
         {
             this.gameObjects[i].update();
-        }   
+
+            if (this.gameObjects[i].dirty)
+                this.gameObjects.splice(i, 1);
+        }
+
+        // Handle collisions after the update so we can rewind movement if neccessary.
         this.handleCollisions();
     }
     

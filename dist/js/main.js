@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var E_SCENES;
 (function (E_SCENES) {
     E_SCENES[E_SCENES["GAME_SCENE"] = 0] = "GAME_SCENE";
@@ -9,10 +14,8 @@ var TILED_LAYERS;
 })(TILED_LAYERS || (TILED_LAYERS = {}));
 var E_COLLIDER_TYPES;
 (function (E_COLLIDER_TYPES) {
-    E_COLLIDER_TYPES[E_COLLIDER_TYPES["GROUND"] = 0] = "GROUND";
-    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PLAYER"] = 1] = "PLAYER";
-    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PROP"] = 2] = "PROP";
-    E_COLLIDER_TYPES[E_COLLIDER_TYPES["TRIGGER"] = 3] = "TRIGGER";
+    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PLAYER"] = 0] = "PLAYER";
+    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PROP"] = 1] = "PROP";
 })(E_COLLIDER_TYPES || (E_COLLIDER_TYPES = {}));
 var ColliderDirection;
 (function (ColliderDirection) {
@@ -29,9 +32,11 @@ var Game = (function () {
         this.updateLag = 0;
         this.fpsTimer = 0;
         this.renderFPS = 0;
+        this.totalUpdates = 0;
         if (Game._instance) {
             throw new Error("Kan klasse niet instantieren: Game is een singleton.");
         }
+        Game._instance = this;
         this.canvas = document.getElementsByTagName("canvas")[0];
         this.canvas.width = Game.width;
         this.canvas.height = Game.height;
@@ -48,6 +53,12 @@ var Game = (function () {
         if (!Game._instance)
             Game._instance = new Game();
         return Game._instance;
+    };
+    Game.prototype.getFPS = function () {
+        return this.renderFPS;
+    };
+    Game.prototype.getTotalUpdates = function () {
+        return this.totalUpdates;
     };
     Game.prototype.activateScene = function (scene) {
         this.activeScene = null;
@@ -67,7 +78,9 @@ var Game = (function () {
         this.elapsedTime = this.currentTime - this.previousTime;
         this.updateLag += this.elapsedTime;
         while (this.updateLag >= Game.MS_UPDATE_LAG) {
+            this.totalUpdates++;
             this.activeScene.update();
+            Scheduler.runJobs(this.totalUpdates);
             this.updateLag -= Game.MS_UPDATE_LAG;
         }
         this.draw();
@@ -87,10 +100,10 @@ var Game = (function () {
     Game.width = 960;
     Game.height = 540;
     Game.gravity = 3;
-    Game.MS_UPDATE_LAG = 33;
+    Game.MS_UPDATE_LAG = 16;
     Game.DEBUG = false;
     return Game;
-})();
+}());
 var GameObject = (function () {
     function GameObject(position, width, height, needsInput, collider, hasGravity, canMove, type) {
         if (needsInput === void 0) { needsInput = false; }
@@ -110,9 +123,6 @@ var GameObject = (function () {
         this.canMove = false;
         this.name = "";
         this.dirty = false;
-        this.width = width;
-        this.height = height;
-        this.position = position;
         this.hasGravity = hasGravity;
         this.canMove = canMove;
         this.needsInput = needsInput;
@@ -121,9 +131,8 @@ var GameObject = (function () {
         this.velocity = new Vector2(0, 0);
         this.acceleration = new Vector2(0, 0);
         this.hasCollided = false;
-        if (this.hasCollider) {
+        if (this.hasCollider)
             this.collider = new BoxCollider(position, width, height, type);
-        }
         if (this.hasGravity)
             this.gravity = true;
     }
@@ -137,9 +146,8 @@ var GameObject = (function () {
             if (vl > 0) {
                 this.velocity = Vector2.add(this.velocity, Vector2.multiply(Vector2.inverse(this.velocity), this.drag));
             }
-            if ((this.hasGravity && this.gravity) && !this.grounded) {
+            if ((this.hasGravity && this.gravity) && !this.grounded)
                 this.velocity.y += Game.gravity;
-            }
             var nv = Vector2.add(this.position, this.velocity);
             var angle = Math.atan2(nv.x - this.position.x, nv.y - this.position.y) * cMath.rad2deg;
             if (angle < 0)
@@ -148,17 +156,15 @@ var GameObject = (function () {
                 this.velocity = Vector2.clamp(this.velocity, this.maxHorSpeed);
             else if (vl > this.maxVertSpeed)
                 this.velocity = Vector2.clamp(this.velocity, this.maxVertSpeed);
-            if (vl > 0 && vl < 0.1) {
+            if (vl > 0 && vl < 0.1)
                 this.velocity = Vector2.zero;
-            }
             this.position = Vector2.add(this.position, this.velocity);
             if (this.hasGravity) {
                 this.grounded = false;
                 this.gravity = true;
             }
-            if (this.hasCollider) {
+            if (this.hasCollider)
                 this.collider.updatePosition(this.position);
-            }
         }
     };
     GameObject.prototype.collided = function (co) {
@@ -170,7 +176,7 @@ var GameObject = (function () {
     GameObject.prototype.onKeyDown = function (event) { };
     GameObject.prototype.onKeyUp = function (event) { };
     return GameObject;
-})();
+}());
 var Scene = (function () {
     function Scene() {
         this.gameObjects = [];
@@ -188,15 +194,16 @@ var Scene = (function () {
                 if (i == j)
                     continue;
                 var col = this.goHasCollider[i].isColliding(this.goHasCollider[j]);
-                if (col.collided) {
+                if (col.collided)
                     this.goHasCollider[i].collided({ object: this.goHasCollider[j], direction: col.direction });
-                }
             }
         }
     };
     Scene.prototype.update = function () {
-        for (var i = 0; i < this.gameObjects.length; i++) {
+        for (var i = this.gameObjects.length - 1; i >= 0; i--) {
             this.gameObjects[i].update();
+            if (this.gameObjects[i].dirty)
+                this.gameObjects.splice(i, 1);
         }
         this.handleCollisions();
     };
@@ -226,17 +233,67 @@ var Scene = (function () {
         }
     };
     return Scene;
-})();
-/// <reference path="classes/Game.ts" />
-/// <reference path="classes/GameObject.ts" />
-/// <reference path="classes/Collider.ts" />
-/// <reference path="classes/Scene.ts" />
+}());
+var Scheduler = (function () {
+    function Scheduler() {
+    }
+    Scheduler.doAtFrame = function (cb, offsetFrames) {
+        if (offsetFrames === void 0) { offsetFrames = 0; }
+        var params = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            params[_i - 2] = arguments[_i];
+        }
+        var doAtFrame = Game.instance().getTotalUpdates() + offsetFrames;
+        this.jobs.push({ func: cb, runAtFrame: doAtFrame, params: params });
+    };
+    Scheduler.runJobs = function (currentFrame) {
+        var newJobs = [];
+        for (var i = 0; i < this.jobs.length; i++) {
+            var job = this.jobs[i];
+            if (currentFrame >= job.runAtFrame) {
+                job.func.apply(job, job.params);
+                job = null;
+            }
+            else
+                newJobs.push(job);
+        }
+        this.jobs = newJobs;
+    };
+    Scheduler.jobs = [];
+    return Scheduler;
+}());
 window.addEventListener("load", function () {
     new Game();
 });
-/**
- * BoxCollider
- */
+var SpriteObject = (function (_super) {
+    __extends(SpriteObject, _super);
+    function SpriteObject(position, width, height, img, needsInput, collider, hasGravity, canMove, type) {
+        if (needsInput === void 0) { needsInput = false; }
+        if (collider === void 0) { collider = false; }
+        if (hasGravity === void 0) { hasGravity = false; }
+        if (canMove === void 0) { canMove = false; }
+        if (type === void 0) { type = E_COLLIDER_TYPES.PROP; }
+        _super.call(this, position, width, height, needsInput, collider, hasGravity, canMove, type);
+        this.sprite = new Image(this.width, this.height);
+        this.sprite.src = 'images/' + img + '.png';
+    }
+    SpriteObject.prototype.update = function () {
+        _super.prototype.update.call(this);
+    };
+    SpriteObject.prototype.draw = function (ctx) {
+        ctx.drawImage(this.sprite, this.position.x - (this.width / 2), this.position.y - (this.height / 2), this.width, this.height);
+    };
+    return SpriteObject;
+}(GameObject));
+var Balloon = (function (_super) {
+    __extends(Balloon, _super);
+    function Balloon(pos, speed) {
+        _super.call(this, pos, 58, 75, "balloon", false, true, false, true, E_COLLIDER_TYPES.PROP);
+        this.speed = 0.5;
+        this.direction.y = -1;
+    }
+    return Balloon;
+}(SpriteObject));
 var BoxCollider = (function () {
     function BoxCollider(pos, width, height, type, offset) {
         if (offset === void 0) { offset = Vector2.zero; }
@@ -274,7 +331,7 @@ var BoxCollider = (function () {
         this.position = new Vector2(pos.x + this.offset.x, pos.y + this.offset.y);
     };
     return BoxCollider;
-})();
+}());
 var Color = (function () {
     function Color(r, g, b, a) {
         if (a === void 0) { a = 1; }
@@ -288,38 +345,12 @@ var Color = (function () {
         this.colorString = "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
     };
     return Color;
-})();
+}());
 var Level = (function () {
     function Level() {
     }
     return Level;
-})();
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var SpriteObject = (function (_super) {
-    __extends(SpriteObject, _super);
-    function SpriteObject(position, width, height, img, needsInput, collider, hasGravity, canMove, type) {
-        if (needsInput === void 0) { needsInput = false; }
-        if (collider === void 0) { collider = false; }
-        if (hasGravity === void 0) { hasGravity = false; }
-        if (canMove === void 0) { canMove = false; }
-        if (type === void 0) { type = E_COLLIDER_TYPES.PROP; }
-        _super.call(this, position, width, height, needsInput, collider, hasGravity, canMove, type);
-        this.sprite = new Image(this.width, this.height);
-        this.sprite.src = 'images/' + img + '.png';
-    }
-    SpriteObject.prototype.update = function () {
-        _super.prototype.update.call(this);
-    };
-    SpriteObject.prototype.draw = function (ctx) {
-        ctx.drawImage(this.sprite, this.position.x - (this.width / 2), this.position.y - (this.height / 2), this.width, this.height);
-    };
-    return SpriteObject;
-})(GameObject);
-/// <reference path="SpriteObject.ts" />
+}());
 var Projectile = (function (_super) {
     __extends(Projectile, _super);
     function Projectile(pos) {
@@ -327,37 +358,34 @@ var Projectile = (function (_super) {
         this.speed = 15;
         this.direction.y = -1;
     }
+    Projectile.prototype.collided = function (co) {
+        switch (co.object.colliderType()) {
+            case E_COLLIDER_TYPES.PROP:
+                console.log("Bang");
+                co.object.dirty = true;
+                break;
+        }
+        _super.prototype.collided.call(this, co);
+    };
     return Projectile;
-})(SpriteObject);
-/// <reference path="SpriteObject.ts" />
-/// <reference path="Projectile.ts" />
+}(SpriteObject));
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(pos) {
-        _super.call(this, pos, 75, 75, "player", true, true, false, true);
-        this.projectiles = [];
-        this.speed = 15;
+        _super.call(this, pos, 75, 75, "player", true, true, false, true, E_COLLIDER_TYPES.PLAYER);
+        this.speed = 12;
+        this.drag = 0.15;
     }
     Player.prototype.update = function () {
         _super.prototype.update.call(this);
-        for (var i = 0; i < this.projectiles.length; i++) {
-            if (this.projectiles[i].dirty) {
-                delete this.projectiles[i];
-                this.projectiles[i] = null;
-            }
-            this.projectiles[i].update();
-        }
     };
     Player.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
-        for (var i = 0; i < this.projectiles.length; i++) {
-            this.projectiles[i].draw(ctx);
-        }
     };
     Player.prototype.onKeyDown = function (event) {
         switch (event.keyCode) {
             case 32:
-                this.projectiles.push(new Projectile(this.position));
+                Scheduler.doAtFrame(function (pos) { return Game.instance().getActiveScene().shootProjectile(pos); }, 0, this.position);
                 break;
             case 39:
                 this.direction.x = 1;
@@ -380,7 +408,7 @@ var Player = (function (_super) {
         }
     };
     return Player;
-})(SpriteObject);
+}(SpriteObject));
 var TextObject = (function (_super) {
     __extends(TextObject, _super);
     function TextObject(position, width, height, text, size, color) {
@@ -397,7 +425,7 @@ var TextObject = (function (_super) {
         ctx.fillText(this.text, this.position.x, this.position.y, this.width);
     };
     return TextObject;
-})(GameObject);
+}(GameObject));
 var Vector2 = (function () {
     function Vector2(x, y) {
         this.x = x;
@@ -429,17 +457,29 @@ var Vector2 = (function () {
     };
     Vector2.zero = new Vector2(0, 0);
     return Vector2;
-})();
+}());
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
         _super.apply(this, arguments);
     }
     GameScene.prototype.init = function () {
+        var _this = this;
         _super.prototype.init.call(this);
         this.gameObjects.push(new TextObject(new Vector2(Game.width / 2 - 200, 200), 350, 50, "Shoot all the balloons before they reach the top!", 24, new Color(0, 100, 0)));
         this.gameObjects.push(new Player(new Vector2(Game.width / 2 - 40, Game.height - 40)));
+        setInterval(function () { return _this.spawnBalloons(); }, 1000);
         _super.prototype.processGameObjects.call(this);
+    };
+    GameScene.prototype.shootProjectile = function (pos) {
+        var p = new Projectile(pos);
+        this.gameObjects.push(p);
+        this.goHasCollider.push(p);
+    };
+    GameScene.prototype.spawnBalloons = function () {
+        var b = new Balloon(new Vector2(cMath.random(0, Game.width), Game.height + 15), Math.random() + 0.1);
+        this.gameObjects.push(b);
+        this.goHasCollider.push(b);
     };
     GameScene.prototype.onKeyDown = function (event) {
         _super.prototype.onKeyDown.call(this, event);
@@ -454,7 +494,7 @@ var GameScene = (function (_super) {
         _super.prototype.draw.call(this, ctx);
     };
     return GameScene;
-})(Scene);
+}(Scene));
 var cMath = (function () {
     function cMath() {
     }
@@ -462,8 +502,11 @@ var cMath = (function () {
         return Math.min(Math.max(n, min), max);
     };
     ;
+    cMath.random = function (min, max) {
+        return Math.floor(Math.random() * max) + min;
+    };
     cMath.deg2rad = Math.PI / 180;
     cMath.rad2deg = 180 / Math.PI;
     return cMath;
-})();
+}());
 //# sourceMappingURL=main.js.map

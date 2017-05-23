@@ -6,25 +6,22 @@ class GameObject
     public maxHorSpeed:number = 15;
     public maxVertSpeed:number = 7.5;
     public drag:number = 0.25;
-
-    public speed:number = 0;
     public needsInput:Boolean;
-    public collider: Collider;
     public hasCollider:Boolean;
-    public hasCollided:Boolean;
-    public hasGravity:Boolean;
+
+    protected speed:number = 0;
+    protected collider: Collider;
+    protected hasCollided:Boolean;
+    protected hasGravity:Boolean;
     protected gravity:Boolean = false;
-    public grounded:Boolean = false;
-    public canMove:Boolean = false;
-    public name:string = "";
+    protected grounded:Boolean = false;
+    protected canMove:Boolean = false;
+    protected name:string = "";
 
     public dirty:Boolean = false; // if true, will be cleaned up.
     
     constructor(public position:Vector2, public width:number, public height:number, needsInput:Boolean = false, collider:Boolean = false, hasGravity:Boolean = false, canMove:Boolean = false, type:E_COLLIDER_TYPES = E_COLLIDER_TYPES.PROP)
     {
-        this.width = width;
-        this.height = height;
-        this.position = position;
         this.hasGravity = hasGravity;
         this.canMove = canMove;
         
@@ -36,9 +33,7 @@ class GameObject
         this.hasCollided = false;
         
         if(this.hasCollider)
-        {
             this.collider = new BoxCollider(position, width, height, type);
-        }
 
         if(this.hasGravity)
             this.gravity = true;
@@ -51,23 +46,26 @@ class GameObject
 
     public update()
     {
+        // Physics bruh.
         if(this.canMove)
         {
             let vl = this.velocity.sqrMagnitude();
             
             this.velocity = Vector2.add(this.velocity, Vector2.multiply(this.direction, this.speed));
 
-            // drag
+            // Drag physics.
             if(vl > 0)
             {
+                // So we are basically adding the inverse of the velocity vector multiplied by the drag value. 
+                // A drag value of 1 means it will do nothing (rigid movement) lower, like 0.25 will make objects 'slide' more
                 this.velocity = Vector2.add(this.velocity, Vector2.multiply(Vector2.inverse(this.velocity), this.drag));
             }
 
+            // Gravity.
             if((this.hasGravity && this.gravity) && !this.grounded)
-            {
                 this.velocity.y += Game.gravity;
-            }
 
+            // Angle of movement and clamping of movement (speed limit).
             let nv = Vector2.add(this.position, this.velocity); // new vector
             let angle = Math.atan2(nv.x - this.position.x, nv.y - this.position.y) * cMath.rad2deg; // get the angle of movement.
 
@@ -83,10 +81,9 @@ class GameObject
 
             // Makes slowing down look and feel smoother.
             if(vl > 0 && vl < 0.1)
-            {
                 this.velocity = Vector2.zero;
-            }
 
+            // Add the calculated velocity to the position.
             this.position = Vector2.add(this.position, this.velocity);
 
             // Reset for next run, they are set on collision check (after update).
@@ -98,9 +95,7 @@ class GameObject
 
             // Update the collider position in case the GameObject moved.
             if(this.hasCollider)
-            {
                 this.collider.updatePosition(this.position);
-            }
         }
     }
     
