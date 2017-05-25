@@ -13,7 +13,7 @@ class Balloon extends SpriteObject
     {
         if(this.position.y + this.height < 0)
         {
-            console.log("Game over");
+            Game.instance().gameOver();
             this.dirty = true;
         }
             
