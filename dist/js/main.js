@@ -71,6 +71,9 @@ var Game = (function () {
     Game.prototype.getActiveScene = function () {
         return this.activeScene;
     };
+    Game.prototype.gameOver = function () {
+        console.log("Game over!");
+    };
     Game.prototype.update = function () {
         var _this = this;
         this.renderFPS++;
@@ -280,7 +283,7 @@ var Balloon = (function (_super) {
     }
     Balloon.prototype.update = function () {
         if (this.position.y + this.height < 0) {
-            console.log("Game over");
+            Game.instance().gameOver();
             this.dirty = true;
         }
         _super.prototype.update.call(this);
