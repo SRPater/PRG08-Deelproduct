@@ -101,6 +101,15 @@ class Game
     {
         return this.activeScene;
     }
+
+    public gameOver(): void
+    {
+        console.log("Game over!")
+        // Add some extra "game over" logic here, like:
+        // - Clearing the screen: removing GameObjects etc.
+        // - Showing a Game Over text
+        // - Showing a "start over" button or something
+    }
     
     // The update loop is based on the 'Fix your Timestep!' article by Glenn Fiedler.
     // I have not taken the time to implement it exactly as described in the article because it's fine for our current needs.
