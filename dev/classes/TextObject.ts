@@ -1,3 +1,5 @@
+/// <reference path="GameObject.ts" />
+
 class TextObject extends GameObject
 {
     public text:string;

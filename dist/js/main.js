@@ -1,17 +1,17 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var E_SCENES;
 (function (E_SCENES) {
     E_SCENES[E_SCENES["GAME_SCENE"] = 0] = "GAME_SCENE";
 })(E_SCENES || (E_SCENES = {}));
-var TILED_LAYERS;
-(function (TILED_LAYERS) {
-    TILED_LAYERS[TILED_LAYERS["TILE_LAYER"] = 0] = "TILE_LAYER";
-    TILED_LAYERS[TILED_LAYERS["COLLISION_LAYER"] = 1] = "COLLISION_LAYER";
-})(TILED_LAYERS || (TILED_LAYERS = {}));
 var E_COLLIDER_TYPES;
 (function (E_COLLIDER_TYPES) {
     E_COLLIDER_TYPES[E_COLLIDER_TYPES["PLAYER"] = 0] = "PLAYER";
@@ -34,7 +34,7 @@ var Game = (function () {
         this.renderFPS = 0;
         this.totalUpdates = 0;
         if (Game._instance) {
-            throw new Error("Kan klasse niet instantieren: Game is een singleton.");
+            throw new Error("Cannot instantiate class: Game is a singleton!");
         }
         Game._instance = this;
         this.canvas = document.getElementsByTagName("canvas")[0];
@@ -97,13 +97,13 @@ var Game = (function () {
     Game.prototype.onKeyUp = function (event) {
         this.activeScene.onKeyUp(event);
     };
-    Game.width = 960;
-    Game.height = 540;
-    Game.gravity = 3;
-    Game.MS_UPDATE_LAG = 16;
-    Game.DEBUG = false;
     return Game;
 }());
+Game.width = 960;
+Game.height = 540;
+Game.gravity = 3;
+Game.MS_UPDATE_LAG = 16;
+Game.DEBUG = false;
 var GameObject = (function () {
     function GameObject(position, width, height, needsInput, collider, hasGravity, canMove, type) {
         if (needsInput === void 0) { needsInput = false; }
@@ -243,9 +243,9 @@ var Scheduler = (function () {
         }
         this.jobs = newJobs;
     };
-    Scheduler.jobs = [];
     return Scheduler;
 }());
+Scheduler.jobs = [];
 window.addEventListener("load", function () {
     new Game();
 });
@@ -257,9 +257,10 @@ var SpriteObject = (function (_super) {
         if (hasGravity === void 0) { hasGravity = false; }
         if (canMove === void 0) { canMove = false; }
         if (type === void 0) { type = E_COLLIDER_TYPES.PROP; }
-        _super.call(this, position, width, height, needsInput, collider, hasGravity, canMove, type);
-        this.sprite = new Image(this.width, this.height);
-        this.sprite.src = 'images/' + img + '.png';
+        var _this = _super.call(this, position, width, height, needsInput, collider, hasGravity, canMove, type) || this;
+        _this.sprite = new Image(_this.width, _this.height);
+        _this.sprite.src = 'images/' + img + '.png';
+        return _this;
     }
     SpriteObject.prototype.update = function () {
         _super.prototype.update.call(this);
@@ -272,9 +273,10 @@ var SpriteObject = (function (_super) {
 var Balloon = (function (_super) {
     __extends(Balloon, _super);
     function Balloon(pos, speed) {
-        _super.call(this, pos, 58, 75, "balloon", false, true, false, true, E_COLLIDER_TYPES.PROP);
-        this.speed = 0.5;
-        this.direction.y = -1;
+        var _this = _super.call(this, pos, 58, 75, "balloon", false, true, false, true, E_COLLIDER_TYPES.PROP) || this;
+        _this.speed = 0.5;
+        _this.direction.y = -1;
+        return _this;
     }
     Balloon.prototype.update = function () {
         if (this.position.y + this.height < 0) {
@@ -337,17 +339,13 @@ var Color = (function () {
     };
     return Color;
 }());
-var Level = (function () {
-    function Level() {
-    }
-    return Level;
-}());
 var Projectile = (function (_super) {
     __extends(Projectile, _super);
     function Projectile(pos) {
-        _super.call(this, pos, 15, 15, "projectile", false, true, false, true);
-        this.speed = 15;
-        this.direction.y = -1;
+        var _this = _super.call(this, pos, 15, 15, "projectile", false, true, false, true) || this;
+        _this.speed = 15;
+        _this.direction.y = -1;
+        return _this;
     }
     Projectile.prototype.collided = function (co) {
         switch (co.object.colliderType()) {
@@ -370,9 +368,10 @@ var Projectile = (function (_super) {
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(pos) {
-        _super.call(this, pos, 75, 75, "player", true, true, false, true, E_COLLIDER_TYPES.PLAYER);
-        this.speed = 12;
-        this.drag = 0.15;
+        var _this = _super.call(this, pos, 75, 75, "player", true, true, false, true, E_COLLIDER_TYPES.PLAYER) || this;
+        _this.speed = 12;
+        _this.drag = 0.15;
+        return _this;
     }
     Player.prototype.update = function () {
         if (this.position.x > Game.width)
@@ -411,10 +410,11 @@ var Player = (function (_super) {
 var TextObject = (function (_super) {
     __extends(TextObject, _super);
     function TextObject(position, width, height, text, size, color) {
-        _super.call(this, position, width, height, false, false);
-        this.text = text;
-        this.size = size;
-        this.color = color;
+        var _this = _super.call(this, position, width, height, false, false) || this;
+        _this.text = text;
+        _this.size = size;
+        _this.color = color;
+        return _this;
     }
     TextObject.prototype.update = function () {
     };
@@ -454,13 +454,13 @@ var Vector2 = (function () {
     Vector2.clamp = function (v1, n) {
         return new Vector2(cMath.clamp(v1.x, -n, n), cMath.clamp(v1.y, -n, n));
     };
-    Vector2.zero = new Vector2(0, 0);
     return Vector2;
 }());
+Vector2.zero = new Vector2(0, 0);
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     GameScene.prototype.init = function () {
         var _this = this;
@@ -502,8 +502,8 @@ var cMath = (function () {
     cMath.random = function (min, max) {
         return Math.floor(Math.random() * max) + min;
     };
-    cMath.deg2rad = Math.PI / 180;
-    cMath.rad2deg = 180 / Math.PI;
     return cMath;
 }());
+cMath.deg2rad = Math.PI / 180;
+cMath.rad2deg = 180 / Math.PI;
 //# sourceMappingURL=main.js.map

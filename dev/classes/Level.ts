@@ -1,7 +1,0 @@
-class Level
-{
-    constructor()
-    {
-        
-    }
-}

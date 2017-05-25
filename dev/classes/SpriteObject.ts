@@ -1,3 +1,5 @@
+/// <reference path="GameObject.ts" />
+
 class SpriteObject extends GameObject
 {
     public sprite:HTMLImageElement;

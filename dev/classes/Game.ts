@@ -3,12 +3,6 @@ enum E_SCENES
     GAME_SCENE
 }
 
-enum TILED_LAYERS
-{
-    TILE_LAYER,
-    COLLISION_LAYER
-}
-
 enum E_COLLIDER_TYPES
 {
     PLAYER,
@@ -51,7 +45,7 @@ class Game
     constructor() 
     {
         if(Game._instance){
-            throw new Error("Kan klasse niet instantieren: Game is een singleton.");
+            throw new Error("Cannot instantiate class: Game is a singleton!");
         }
 
         Game._instance = this;

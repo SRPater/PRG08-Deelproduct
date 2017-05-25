@@ -15,10 +15,13 @@ The source code can be compiled using a Typescript transpiler. By default the `t
 ![UML](uml.png?raw=true "UML")
 
 **Singleton**
-See the Game.ts class.
+See the Game class.
 
 **Interface & strategy pattern**
-See the Collider.ts interface and BoxCollider for implementation.
+See the Collider interface and BoxCollider for implementation.
 
 **Static utility method**
-Used in the cMath.ts class and Vector2.ts class.
+Used in the cMath class and Vector2 class.
+
+**Inheritance, composition, encapsulation**
+Used throughout, see Scene, GameScene GameObject, Player for example.
