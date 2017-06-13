@@ -8,23 +8,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var E_SCENES;
-(function (E_SCENES) {
-    E_SCENES[E_SCENES["GAME_SCENE"] = 0] = "GAME_SCENE";
-})(E_SCENES || (E_SCENES = {}));
-var E_COLLIDER_TYPES;
-(function (E_COLLIDER_TYPES) {
-    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PLAYER"] = 0] = "PLAYER";
-    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PROP"] = 1] = "PROP";
-})(E_COLLIDER_TYPES || (E_COLLIDER_TYPES = {}));
-var ColliderDirection;
-(function (ColliderDirection) {
-    ColliderDirection[ColliderDirection["NONE"] = 0] = "NONE";
-    ColliderDirection[ColliderDirection["TOP"] = 1] = "TOP";
-    ColliderDirection[ColliderDirection["BOTTOM"] = 2] = "BOTTOM";
-    ColliderDirection[ColliderDirection["LEFT"] = 3] = "LEFT";
-    ColliderDirection[ColliderDirection["RIGHT"] = 4] = "RIGHT";
-})(ColliderDirection || (ColliderDirection = {}));
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -33,25 +16,30 @@ var Game = (function () {
         this.fpsTimer = 0;
         this.renderFPS = 0;
         this.totalUpdates = 0;
-        if (Game._instance) {
-            throw new Error("Cannot instantiate class: Game is a singleton!");
-        }
+        this._gameScore = 0;
+        if (Game._instance)
+            throw new Error("Cannot (re)instantiate class: Game is a singleton!");
         Game._instance = this;
         this.canvas = document.getElementsByTagName("canvas")[0];
         this.canvas.width = Game.width;
         this.canvas.height = Game.height;
-        this.date = new Date();
         this.context = this.canvas.getContext('2d');
         window.addEventListener("keydown", function (e) { return _this.onKeyDown(e); });
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
-        this.currentTime = this.date.getTime();
+        this.currentTime = (new Date).getTime();
         this.previousTime = this.currentTime;
         this.activateScene(E_SCENES.GAME_SCENE);
         requestAnimationFrame(function () { return _this.update(); });
     }
+    Object.defineProperty(Game.prototype, "gameScore", {
+        get: function () { return this._gameScore; },
+        set: function (s) { this._gameScore = s; },
+        enumerable: true,
+        configurable: true
+    });
     Game.instance = function () {
         if (!Game._instance)
-            Game._instance = new Game();
+            new Game();
         return Game._instance;
     };
     Game.prototype.getFPS = function () {
@@ -66,6 +54,9 @@ var Game = (function () {
             case E_SCENES.GAME_SCENE:
                 this.activeScene = new GameScene();
                 break;
+            case E_SCENES.GAME_OVER_SCENE:
+                this.activeScene = new GameOverScene();
+                break;
         }
     };
     Game.prototype.getActiveScene = function () {
@@ -73,6 +64,7 @@ var Game = (function () {
     };
     Game.prototype.gameOver = function () {
         console.log("Game over!");
+        this.activateScene(E_SCENES.GAME_OVER_SCENE);
     };
     Game.prototype.update = function () {
         var _this = this;
@@ -250,7 +242,7 @@ var Scheduler = (function () {
 }());
 Scheduler.jobs = [];
 window.addEventListener("load", function () {
-    new Game();
+    Game.instance();
 });
 var SpriteObject = (function (_super) {
     __extends(SpriteObject, _super);
@@ -354,6 +346,8 @@ var Projectile = (function (_super) {
         switch (co.object.colliderType()) {
             case E_COLLIDER_TYPES.PROP:
                 console.log("Bang");
+                Game.instance().gameScore += 5;
+                this.dirty = true;
                 co.object.dirty = true;
                 break;
         }
@@ -419,6 +413,24 @@ var TextObject = (function (_super) {
         _this.color = color;
         return _this;
     }
+    Object.defineProperty(TextObject.prototype, "text", {
+        get: function () { return this._text; },
+        set: function (text) { this._text = text; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextObject.prototype, "size", {
+        get: function () { return this._size; },
+        set: function (size) { this._size = size; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TextObject.prototype, "color", {
+        get: function () { return this._color; },
+        set: function (color) { this._color = color; },
+        enumerable: true,
+        configurable: true
+    });
     TextObject.prototype.update = function () {
     };
     TextObject.prototype.draw = function (ctx) {
@@ -460,14 +472,42 @@ var Vector2 = (function () {
     return Vector2;
 }());
 Vector2.zero = new Vector2(0, 0);
+var GameOverScene = (function (_super) {
+    __extends(GameOverScene, _super);
+    function GameOverScene() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    GameOverScene.prototype.init = function () {
+        this.gameObjects.push(new TextObject(new Vector2(Game.width / 2 - 200, 200), 350, 50, "You reached a score of: " + Game.instance().gameScore, 24, new Color(0, 0, 255)));
+    };
+    GameOverScene.prototype.destroy = function () { };
+    ;
+    GameOverScene.prototype.onKeyDown = function (event) {
+        _super.prototype.onKeyDown.call(this, event);
+    };
+    GameOverScene.prototype.onKeyUp = function (event) {
+        _super.prototype.onKeyUp.call(this, event);
+    };
+    GameOverScene.prototype.update = function () {
+        _super.prototype.update.call(this);
+    };
+    GameOverScene.prototype.draw = function (ctx) {
+        _super.prototype.draw.call(this, ctx);
+    };
+    return GameOverScene;
+}(Scene));
 var GameScene = (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.lastScore = 0;
+        return _this;
     }
     GameScene.prototype.init = function () {
         var _this = this;
         this.gameObjects.push(new TextObject(new Vector2(Game.width / 2 - 200, 200), 350, 50, "Shoot all the balloons before they reach the top!", 24, new Color(0, 100, 0)));
+        this.scoreText = new TextObject(new Vector2(10, 35), 100, 50, "Score: " + Game.instance().gameScore, 24, new Color(0, 0, 255));
+        this.gameObjects.push(this.scoreText);
         this.gameObjects.push(new Player(new Vector2(Game.width / 2 - 40, Game.height - 40)));
         setInterval(function () { return _this.spawnBalloons(); }, 1000);
     };
@@ -489,12 +529,33 @@ var GameScene = (function (_super) {
     };
     GameScene.prototype.update = function () {
         _super.prototype.update.call(this);
+        if (this.lastScore != Game.instance().gameScore)
+            this.scoreText.text = "Score: " + Game.instance().gameScore;
+        this.lastScore = Game.instance().gameScore;
     };
     GameScene.prototype.draw = function (ctx) {
         _super.prototype.draw.call(this, ctx);
     };
     return GameScene;
 }(Scene));
+var E_SCENES;
+(function (E_SCENES) {
+    E_SCENES[E_SCENES["GAME_SCENE"] = 0] = "GAME_SCENE";
+    E_SCENES[E_SCENES["GAME_OVER_SCENE"] = 1] = "GAME_OVER_SCENE";
+})(E_SCENES || (E_SCENES = {}));
+var E_COLLIDER_TYPES;
+(function (E_COLLIDER_TYPES) {
+    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PLAYER"] = 0] = "PLAYER";
+    E_COLLIDER_TYPES[E_COLLIDER_TYPES["PROP"] = 1] = "PROP";
+})(E_COLLIDER_TYPES || (E_COLLIDER_TYPES = {}));
+var ColliderDirection;
+(function (ColliderDirection) {
+    ColliderDirection[ColliderDirection["NONE"] = 0] = "NONE";
+    ColliderDirection[ColliderDirection["TOP"] = 1] = "TOP";
+    ColliderDirection[ColliderDirection["BOTTOM"] = 2] = "BOTTOM";
+    ColliderDirection[ColliderDirection["LEFT"] = 3] = "LEFT";
+    ColliderDirection[ColliderDirection["RIGHT"] = 4] = "RIGHT";
+})(ColliderDirection || (ColliderDirection = {}));
 var cMath = (function () {
     function cMath() {
     }

@@ -1,11 +1,21 @@
 /// <reference path="GameObject.ts" />
 
+/** Author: JeroenV
+ *  TextObject used to draw text on the canvas.
+ */
 class TextObject extends GameObject
 {
-    public text:string;
-    public size:number;
+    protected _text: string;
+    public get text(): string  { return this._text; }
+    public set text(text: string) { this._text = text; }
+
+    protected _size: number;
+    public get size(): number  { return this._size; }
+    public set size(size: number) { this._size = size; }
     
-    public color:Color;
+    protected _color: Color;
+    public get color(): Color  { return this._color; }
+    public set color(color: Color) { this._color = color; }
     
     constructor(position:Vector2, width:number, height:number, text:string, size:number, color:Color)
     {

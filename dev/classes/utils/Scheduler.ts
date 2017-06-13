@@ -1,3 +1,7 @@
+/** Author: JeroenV
+ *  Scheduler class. I was bored; wanted to create a Scheduling class that allows you to specify a function to be executed after X amount of frames.
+ */
+
 interface ScheduleJob {
     func: Function,
     runAtFrame: number,

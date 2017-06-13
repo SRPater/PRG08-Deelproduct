@@ -5,5 +5,5 @@
 /// <reference path="classes/utils/Scheduler.ts" />
 
 window.addEventListener("load", function() {
-    new Game();
+    Game.instance();
 });

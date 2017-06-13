@@ -15,6 +15,8 @@ class Projectile extends SpriteObject
         {
             case E_COLLIDER_TYPES.PROP:
                 console.log("Bang");
+                Game.instance().gameScore += 5;
+                this.dirty = true; // if this were false (or not set) we could shoot multiple Balloons with one Projectile (could be what you want).
                 co.object.dirty = true;
             break;
         }

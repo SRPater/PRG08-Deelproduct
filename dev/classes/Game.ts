@@ -1,22 +1,6 @@
-enum E_SCENES 
-{
-    GAME_SCENE
-}
-
-enum E_COLLIDER_TYPES
-{
-    PLAYER,
-    PROP
-}
-
-enum ColliderDirection
-{
-    NONE,
-    TOP,
-    BOTTOM,
-    LEFT,
-    RIGHT
-}
+/** Author: JeroenV
+ *  Main game class.
+ */
 
 class Game 
 {
@@ -31,7 +15,6 @@ class Game
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private activeScene: Scene;
-    private date: Date;
 
     private elapsedTime: number = 0;
     private updateLag: number = 0;
@@ -42,25 +25,27 @@ class Game
     private renderFPS: number = 0;
     private totalUpdates: number = 0;
 
+    protected _gameScore: number = 0;
+    public get gameScore(): number  { return this._gameScore; }
+    public set gameScore(s: number) { this._gameScore = s; }
+
     constructor() 
     {
-        if(Game._instance){
-            throw new Error("Cannot instantiate class: Game is a singleton!");
-        }
+        if(Game._instance)
+            throw new Error("Cannot (re)instantiate class: Game is a singleton!");
 
         Game._instance = this;
 
         this.canvas = document.getElementsByTagName("canvas")[0];
         this.canvas.width = Game.width;
         this.canvas.height = Game.height;
-        this.date = new Date();
 
         this.context = this.canvas.getContext('2d');
         
         window.addEventListener("keydown", (e) => this.onKeyDown(e));
         window.addEventListener("keyup"  , (e) => this.onKeyUp(e));
 
-        this.currentTime = this.date.getTime();
+        this.currentTime = (new Date).getTime();
         this.previousTime = this.currentTime;
 
         this.activateScene(E_SCENES.GAME_SCENE);
@@ -71,7 +56,7 @@ class Game
     public static instance()
     {
         if(!Game._instance)
-            Game._instance = new Game();
+            new Game();
             
         return Game._instance;
     }
@@ -94,6 +79,9 @@ class Game
             case E_SCENES.GAME_SCENE:
                 this.activeScene = new GameScene();
             break;
+            case E_SCENES.GAME_OVER_SCENE:
+                this.activeScene = new GameOverScene();
+            break;
         }
     }
 
@@ -105,14 +93,12 @@ class Game
     public gameOver(): void
     {
         console.log("Game over!")
-        // Add some extra "game over" logic here, like:
-        // - Clearing the screen: removing GameObjects etc.
-        // - Showing a Game Over text
-        // - Showing a "start over" button or something
+        this.activateScene(E_SCENES.GAME_OVER_SCENE);
     }
     
     // The update loop is based on the 'Fix your Timestep!' article by Glenn Fiedler.
     // I have not taken the time to implement it exactly as described in the article because it's fine for our current needs.
+    // Article: http://gafferongames.com/game-physics/fix-your-timestep/ 
     private update() : void 
     {
         this.renderFPS++;

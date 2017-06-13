@@ -1,8 +1,6 @@
 abstract class Scene
 {
     public gameObjects: GameObject[] = [];
-    //public goNeedInput: GameObject[] = []; // Array of GameObjects that require input events (reference stored).
-    //public goHasCollider: GameObject[] = []; // Array of GameObjects that have a collider (and so should collide - reference stored).
     
     constructor()
     {
@@ -11,22 +9,6 @@ abstract class Scene
     
     abstract init() : void;
     abstract destroy() : void;
-    
-    /*public handleCollisions():void
-    {
-        for(let i = 0; i < this.goHasCollider.length; i++)
-        {
-            for(let j = 0; j < this.goHasCollider.length; j++)
-            {
-                if(i == j)
-                    continue;
-
-                let col = this.goHasCollider[i].isColliding(this.goHasCollider[j]);   
-                if(col.collided)
-                    this.goHasCollider[i].collided({object:this.goHasCollider[j], direction:col.direction});
-            }
-        }
-    }*/
     
     public update() : void 
     {
