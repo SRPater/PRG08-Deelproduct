@@ -14,7 +14,7 @@ class Scheduler
 
     public static doAtFrame(cb: Function, offsetFrames = 0, ...params: any[]) 
     {
-        let doAtFrame = Game.instance().getTotalUpdates() + offsetFrames;
+        let doAtFrame = Core.Game.instance().getTotalUpdates() + offsetFrames;
         this.jobs.push({func: cb, runAtFrame: doAtFrame, params: params});
     }
 

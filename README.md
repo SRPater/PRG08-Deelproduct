@@ -1,4 +1,4 @@
-# PRG08-Deelproduct
+# PRG08-Eindproduct
 
 ## Balloon popper
 Live version: https://omniscientjv.github.io/PRG08-Deelproduct/dist/
@@ -14,17 +14,32 @@ The source code can be compiled using a Typescript transpiler. By default the `t
 ### UML
 ![UML](uml.png?raw=true "UML")
 
+**Namespaces**
+I have used namespaces as an example to seperate the 'engine' or Core logic from the actual game (see Game, GameObject, Scene etc).
+
 **Singleton**
-See the Game class.
+See the Game, AudioManager and ScoreManager class.
 
 **Interface & strategy pattern**
 See the Collider interface and BoxCollider for implementation.
+
+**Observer**
+See the Observer and Subject interfaces. For implementation, see the ScoreText class (Observer) and ScoreManager (Subject) classes.
 
 **Static utility method**
 Used in the cMath class and Vector2 class.
 
 **Inheritance, composition, encapsulation**
 Used throughout, see Scene, GameScene GameObject, Player for example.
+
+**Polymorphism**
+Is used throughout the application. See the Collider and GameObject classes for concrete examples.
+
+**Enumerations**
+A statemachine-ish system is implemented for the 'Scenes' system. See the Game, Scene, GameScene and GameOverScene for implementation details.
+
+**External library**
+I have implemented Howler (https://github.com/goldfire/howler.js) for cross-browser audio support.
 
 ## Peer Review Week 4
 
@@ -49,3 +64,7 @@ Beoordeling: voldoende.
 ### Edits
 
 Ik heb de "Game Over" log in Balloon vervangen door een aanroep van de nieuwe "gameOver" method in Game, die nu ook alleen nog "Game Over" logt. Hier zou je echter extra "Game Over-functionaliteit" aan toe kunnen voegen, waardoor je deze functionaliteit in zijn geheel in één functie opneemt. Dit maakt gebruikt van de al ingebouwde singleton door de aanroep van Game.instance().
+
+## Peer Review Week 7
+
+**Graag hier :)**

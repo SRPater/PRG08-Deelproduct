@@ -1,4 +1,4 @@
-/// <reference path="SpriteObject.ts" />
+/// <reference path="../SpriteObject.ts" />
 
 class Balloon extends SpriteObject
 {
@@ -13,7 +13,7 @@ class Balloon extends SpriteObject
     {
         if(this.position.y + this.height < 0)
         {
-            Game.instance().gameOver();
+            Core.Game.instance().gameOver();
             this.dirty = true;
         }
             

@@ -2,11 +2,15 @@
  *  GameOverScene
  */
 
-class GameOverScene extends Scene
+class GameOverScene extends Core.Scene
 {
     public init() : void
     {        
-        this.gameObjects.push(new TextObject(new Vector2(Game.width / 2 - 200, 200), 350 , 50, "You reached a score of: " + Game.instance().gameScore, 24, new Color(0, 0, 255)));
+        this.gameObjects.push(new TextObject(
+            new Vector2(Core.Game.width / 2 - 200, 200), 350 , 50, 
+            "You reached a score of: " + ScoreManager.instance().gameScore, 24, 
+            new Core.Visual.Color(0, 0, 255))
+        );
     }
     
     public destroy() : void {};

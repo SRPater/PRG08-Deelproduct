@@ -1,6 +1,3 @@
-/// <reference path="SpriteObject.ts" />
-/// <reference path="Projectile.ts" />
-
 class Player extends SpriteObject
 {
     constructor(pos: Vector2)
@@ -12,8 +9,8 @@ class Player extends SpriteObject
 
     public update()
     {
-        if(this.position.x > Game.width)
-            this.position.x = Game.width;
+        if(this.position.x > Core.Game.width)
+            this.position.x = Core.Game.width;
 
         if(this.position.x < 0)
             this.position.x = 0;
@@ -28,7 +25,7 @@ class Player extends SpriteObject
             case 32:
                 // Just cuz I wantd to use my fancy Scheduler class :)
                 Scheduler.doAtFrame(
-                    (pos: Vector2) => (<GameScene>Game.instance().getActiveScene()).shootProjectile(pos), 0, this.position
+                    (pos: Vector2) => (<GameScene>Core.Game.instance().getActiveScene()).shootProjectile(pos), 0, this.position
                 );
             break;
             case 39: // Arrow right

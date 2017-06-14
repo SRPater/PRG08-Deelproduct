@@ -1,21 +1,24 @@
-class Color
+namespace Core.Visual
 {
-    public r:number;
-    public g:number;
-    public b:number;
-    public a:number;
-    public colorString:string;
-
-    constructor(r:number, g:number, b:number, a:number = 1)
+    export class Color
     {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-        this.cacheColorString();
-    }
+        public r:number;
+        public g:number;
+        public b:number;
+        public a:number;
+        public colorString:string;
 
-    public cacheColorString(){
-        this.colorString = "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")"; 
+        constructor(r:number, g:number, b:number, a:number = 1)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+            this.cacheColorString();
+        }
+
+        public cacheColorString(){
+            this.colorString = "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")"; 
+        }
     }
 }

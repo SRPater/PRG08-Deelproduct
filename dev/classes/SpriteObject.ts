@@ -3,7 +3,7 @@
 /** Author: JeroenV
  *  SpriteObject used to create a GameObject with a sprite Image. Currently animations are not supported.
  */
-class SpriteObject extends GameObject
+class SpriteObject extends Core.GameObject
 {
     public sprite:HTMLImageElement;
     
