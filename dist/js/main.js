@@ -8,6 +8,28 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var AudioManager = (function () {
+    function AudioManager() {
+        this.audioSrcs = {};
+        if (AudioManager._instance)
+            throw new Error("Cannot (re)instantiate class: Game is a singleton!");
+        AudioManager._instance = this;
+    }
+    AudioManager.prototype.init = function () {
+        this.audioSrcs["balloon_pop"] = new Howl({
+            src: ['audio/pop.mp3']
+        });
+    };
+    AudioManager.prototype.sound = function (tag) {
+        return this.audioSrcs[tag];
+    };
+    AudioManager.instance = function () {
+        if (!AudioManager._instance)
+            new AudioManager();
+        return AudioManager._instance;
+    };
+    return AudioManager;
+}());
 var Game = (function () {
     function Game() {
         var _this = this;
@@ -28,6 +50,7 @@ var Game = (function () {
         window.addEventListener("keyup", function (e) { return _this.onKeyUp(e); });
         this.currentTime = (new Date).getTime();
         this.previousTime = this.currentTime;
+        AudioManager.instance().init();
         this.activateScene(E_SCENES.GAME_SCENE);
         requestAnimationFrame(function () { return _this.update(); });
     }
@@ -522,6 +545,10 @@ var GameScene = (function (_super) {
         this.gameObjects.push(b);
     };
     GameScene.prototype.onKeyDown = function (event) {
+        var sound = new Howl({
+            src: ['audio/pop.mp3']
+        });
+        sound.play();
         _super.prototype.onKeyDown.call(this, event);
     };
     GameScene.prototype.onKeyUp = function (event) {

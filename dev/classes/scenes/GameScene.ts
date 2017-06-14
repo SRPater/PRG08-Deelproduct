@@ -28,6 +28,11 @@ class GameScene extends Scene
 
     public onKeyDown(event:KeyboardEvent):void 
     {
+        var sound = new Howl({
+            src: ['audio/pop.mp3']
+            });
+
+            sound.play();
         super.onKeyDown(event);
     }
 

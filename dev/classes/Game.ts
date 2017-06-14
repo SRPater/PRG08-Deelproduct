@@ -48,6 +48,8 @@ class Game
         this.currentTime = (new Date).getTime();
         this.previousTime = this.currentTime;
 
+        AudioManager.instance().init();
+
         this.activateScene(E_SCENES.GAME_SCENE);
         
         requestAnimationFrame(() => this.update());    
