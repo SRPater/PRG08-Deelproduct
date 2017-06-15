@@ -45,19 +45,19 @@ I have implemented Howler (https://github.com/goldfire/howler.js) for cross-brow
 
 ### Beoordeling
 
-[x] De code voor het deelproduct staat op je eigen GitHub
-[x] Er is een live page waar de game speelbaar is
-[ ] Het deelproduct moet werkend zijn zonder bugs/foutmeldingen  --> Misschien niet echt een bug, maar er wordt "game over" gelogd als een ballon de bovenkant bereikt, maar het spel gaat gewoon door.
-[x] Het project bevat een Readme bestand met installatie instructies. Deze instructies stellen de gebruiker in staat om het deelproduct te installeren en te openen.
-[x] Er is een klassendiagram voor het eindproduct. Hierin is aangegeven welke onderdelen al werkend zijn.
-[x] Het Readme bestand legt uit waar de onderstaande programmeerprincipes zijn toegepast in het project
-[x] Het deelproduct maakt gebruik van:
-- [x] interface
-- [x] static utility method
-- [x] singleton
-- [x] strategy
-[x] En van technieken uit PRG01-4:
-- [x] Encapsulation, Composition, Inheritance
+- [x] De code voor het deelproduct staat op je eigen GitHub
+- [x] Er is een live page waar de game speelbaar is
+- [ ] Het deelproduct moet werkend zijn zonder bugs/foutmeldingen  --> Misschien niet echt een bug, maar er wordt "game over" gelogd als een ballon de bovenkant bereikt, maar het spel gaat gewoon door.
+- [x] Het project bevat een Readme bestand met installatie instructies. Deze instructies stellen de gebruiker in staat om het deelproduct te installeren en te openen.
+- [x] Er is een klassendiagram voor het eindproduct. Hierin is aangegeven welke onderdelen al werkend zijn.
+- [x] Het Readme bestand legt uit waar de onderstaande programmeerprincipes zijn toegepast in het project
+- [x] Het deelproduct maakt gebruik van:
+- - [x] interface
+- - [x] static utility method
+- - [x] singleton
+- - [x] strategy
+- [x] En van technieken uit PRG01-4:
+- - [x] Encapsulation, Composition, Inheritance
 
 Beoordeling: voldoende.
 
