@@ -67,4 +67,16 @@ Ik heb de "Game Over" log in Balloon vervangen door een aanroep van de nieuwe "g
 
 ## Peer Review Week 7
 
-**Graag hier :)**
+### Beoordeling
+
+- [x] Klassendiagram: nog niet helemaal aangepast, maar goed genoeg.
+- [x] Speelbare game met begin en eind, zonder bugs: het spel begint gelijk (zonder beginscherm o.i.d.), maar er is een eindscherm en er zijn geen bugs.
+- [x] Gebruik een library: Howler gebruikt om de geluiden toe te voegen voor ballonnen die kapot gaan.
+- [x] Encapsulation, composition, inheritance: door het project heen goed geïmplementeerd.
+- [x] Singleton, Observer, Strategy: alledrie op een goede manier geïmplementeerd.
+- [x] Interface, static, abstract: op een juiste manier door het project heen geïmplementeerd.
+- [x] Namespaces, polymorphism, enumerations: alledrie goed toegepast.
+- [x] Game Loop: goed toegepast.
+- [x] README.md file waarin bovenstaande wordt toegelicht: ben je nu aan het lezen!
+
+Beoordeling: voldoende!
